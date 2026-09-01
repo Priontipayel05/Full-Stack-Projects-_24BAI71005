@@ -1,0 +1,116 @@
+.event-list {
+  background: white;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  flex: 1;
+  max-width: 400px;
+}
+
+.event-list h2 {
+  margin-top: 0;
+  color: #2c3e50;
+  font-size: 1.5rem;
+}
+
+.add-event-form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 20px;
+  padding: 15px;
+  background: #f8f9fa;
+  border-radius: 8px;
+}
+
+.event-input,
+.event-date-input,
+.event-time-input {
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 1rem;
+}
+
+.event-input:focus,
+.event-date-input:focus,
+.event-time-input:focus {
+  outline: none;
+  border-color: #3498db;
+}
+
+.add-btn {
+  padding: 10px;
+  background: #2ecc71;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.add-btn:hover {
+  background: #27ae60;
+}
+
+.events-container {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.event-item {
+  background: #f8f9fa;
+  border-radius: 8px;
+  padding: 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: all 0.2s ease;
+}
+
+.event-item:hover {
+  background: #e9ecef;
+  transform: translateX(4px);
+}
+
+.event-content {
+  cursor: pointer;
+  flex: 1;
+}
+
+.event-content h3 {
+  margin: 0 0 4px 0;
+  font-size: 1rem;
+  color: #2c3e50;
+}
+
+.event-content p {
+  margin: 2px 0;
+  font-size: 0.85rem;
+  color: #7f8c8d;
+}
+
+.delete-btn {
+  padding: 6px 12px;
+  background: #e74c3c;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.2s ease;
+  font-size: 0.85rem;
+}
+
+.delete-btn:hover {
+  background: #c0392b;
+}
+
+.no-events {
+  color: #7f8c8d;
+  text-align: center;
+  padding: 20px;
+}
