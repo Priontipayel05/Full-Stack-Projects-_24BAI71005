@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>REST API Post Manager</title>
+
+    <link rel="stylesheet" href="style.css">
+
+</head>
+
+<body>
+
+<div class="container">
+
+    <header>
+
+        <h1>REST API Post Manager</h1>
+
+        <p>
+            Spring Boot CRUD API with Validation & Standardized Responses
+        </p>
+
+    </header>
+
+
+    <section class="form-card">
+
+        <h2>Create / Update Post</h2>
+
+        <form id="postForm">
+
+            <input type="hidden" id="postId">
+
+            <div class="form-grid">
+
+                <div>
+                    <label>Title</label>
+
+                    <input
+                        type="text"
+                        id="title"
+                        placeholder="Enter title"
+                        required
+                    >
+                </div>
+
+                <div>
+                    <label>Author</label>
+
+                    <input
+                        type="text"
+                        id="author"
+                        placeholder="Enter author"
+                        required
+                    >
+                </div>
+
+                <div>
+                    <label>Scheduled Date & Time</label>
+
+                    <input
+                        type="datetime-local"
+                        id="scheduledAt"
+                        required
+                    >
+                </div>
+
+                <div>
+                    <label>Status</label>
+
+                    <select id="status">
+
+                        <option value="SCHEDULED">
+                            SCHEDULED
+                        </option>
+
+                        <option value="PUBLISHED">
+                            PUBLISHED
+                        </option>
+
+                        <option value="DRAFT">
+                            DRAFT
+                        </option>
+
+                    </select>
+
+                </div>
+
+            </div>
+
+            <div>
+
+                <label>Content</label>
+
+                <textarea
+                    id="content"
+                    placeholder="Enter post content"
+                    required
+                ></textarea>
+
+            </div>
+
+            <div class="buttons">
+
+                <button type="submit">
+                    Save Post
+                </button>
+
+                <button
+                    type="button"
+                    id="clearBtn">
+                    Clear
+                </button>
+
+            </div>
+
+        </form>
+
+    </section>
+
+
+    <section class="table-card">
+
+        <div class="table-header">
+
+            <h2>All Posts</h2>
+
+            <button id="refreshBtn">
+                Refresh
+            </button>
+
+        </div>
+
+
+        <div class="table-container">
+
+            <table>
+
+                <thead>
+
+                    <tr>
+
+                        <th>ID</th>
+                        <th>Title</th>
+                        <th>Author</th>
+                        <th>Scheduled At</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+
+                    </tr>
+
+                </thead>
+
+                <tbody id="postTableBody">
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </section>
+
+
+    <div id="message"></div>
+
+
+    <footer>
+
+        Experiment 2.1.1 |
+        Spring Boot RESTful API
+
+    </footer>
+
+</div>
+
+
+<script src="script.js"></script>
+
+</body>
+
+</html>
