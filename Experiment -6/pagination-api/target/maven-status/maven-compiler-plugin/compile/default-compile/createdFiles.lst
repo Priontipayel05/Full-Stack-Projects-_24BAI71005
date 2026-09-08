@@ -1,0 +1,5 @@
+com\example\pagination_api\repository\StudentRepository.class
+com\example\pagination_api\service\StudentService.class
+com\example\pagination_api\PaginationApiApplication.class
+com\example\pagination_api\controller\StudentController.class
+com\example\pagination_api\entity\Student.class

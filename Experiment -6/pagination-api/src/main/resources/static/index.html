@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Student Data Dashboard</title>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <div class="container">
+
+        <!-- Header -->
+        <header class="header">
+
+            <div>
+                <h1>Student Data Dashboard</h1>
+                <p>Paginated & Sortable REST API</p>
+            </div>
+
+            <div class="api-status">
+                <span id="statusDot"></span>
+                <span id="statusText">Checking API...</span>
+            </div>
+
+        </header>
+
+
+        <!-- Statistics -->
+        <section class="stats">
+
+            <div class="stat-card">
+                <div class="stat-icon">👥</div>
+                <div>
+                    <p>Total Students</p>
+                    <h2 id="totalStudents">0</h2>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon">📄</div>
+                <div>
+                    <p>Total Pages</p>
+                    <h2 id="totalPages">0</h2>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon">📑</div>
+                <div>
+                    <p>Current Page</p>
+                    <h2 id="currentPage">1</h2>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon">🔢</div>
+                <div>
+                    <p>Records Per Page</p>
+                    <h2 id="recordsPerPage">5</h2>
+                </div>
+            </div>
+
+        </section>
+
+
+        <!-- Controls -->
+        <section class="controls">
+
+            <div class="control-group">
+
+                <label for="sortBy">
+                    Sort By
+                </label>
+
+                <select id="sortBy">
+
+                    <option value="id">
+                        ID
+                    </option>
+
+                    <option value="name">
+                        Name
+                    </option>
+
+                    <option value="email">
+                        Email
+                    </option>
+
+                    <option value="course">
+                        Course
+                    </option>
+
+                    <option value="age">
+                        Age
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <div class="control-group">
+
+                <label for="direction">
+                    Order
+                </label>
+
+                <select id="direction">
+
+                    <option value="asc">
+                        Ascending ↑
+                    </option>
+
+                    <option value="desc">
+                        Descending ↓
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <div class="control-group">
+
+                <label for="pageSize">
+                    Records
+                </label>
+
+                <select id="pageSize">
+
+                    <option value="3">
+                        3
+                    </option>
+
+                    <option value="5" selected>
+                        5
+                    </option>
+
+                    <option value="10">
+                        10
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <div class="search-box">
+
+                <input
+                    type="text"
+                    id="searchInput"
+                    placeholder="Search current page..."
+                >
+
+            </div>
+
+
+            <button class="refresh-btn" onclick="loadStudents()">
+                ↻ Refresh
+            </button>
+
+        </section>
+
+
+        <!-- Table -->
+        <section class="table-container">
+
+            <div class="table-header">
+
+                <div>
+                    <h2>Student Records</h2>
+                    <p id="showingText">
+                        Loading records...
+                    </p>
+                </div>
+
+            </div>
+
+
+            <div class="table-wrapper">
+
+                <table>
+
+                    <thead>
+
+                        <tr>
+
+                            <th>ID</th>
+
+                            <th>Name</th>
+
+                            <th>Email</th>
+
+                            <th>Course</th>
+
+                            <th>Age</th>
+
+                        </tr>
+
+                    </thead>
+
+                    <tbody id="studentTable">
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </section>
+
+
+        <!-- Pagination -->
+        <section class="pagination-section">
+
+            <button
+                id="previousBtn"
+                onclick="previousPage()">
+
+                ← Previous
+
+            </button>
+
+
+            <div id="pageNumbers" class="page-numbers">
+            </div>
+
+
+            <button
+                id="nextBtn"
+                onclick="nextPage()">
+
+                Next →
+
+            </button>
+
+        </section>
+
+
+        <!-- Footer -->
+        <footer>
+
+            <p>
+                Experiment 2.2.1 |
+                Spring Boot Pagination & Sorting API
+            </p>
+
+        </footer>
+
+    </div>
+
+
+    <script src="script.js"></script>
+
+</body>
+
+</html>
