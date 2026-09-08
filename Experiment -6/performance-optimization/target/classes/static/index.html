@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>
+        Backend Performance Optimization
+    </title>
+
+    <link
+        rel="stylesheet"
+        href="style.css"
+    >
+
+</head>
+
+<body>
+
+<div class="container">
+
+    <header>
+
+        <h1>
+            Backend Performance Optimization
+        </h1>
+
+        <p>
+            N+1 Query | JOIN FETCH | Ehcache | Native SQL
+        </p>
+
+    </header>
+
+
+    <section class="cards">
+
+        <div class="card">
+
+            <h3>
+                Students
+            </h3>
+
+            <p id="studentCount">
+                0
+            </p>
+
+        </div>
+
+
+        <div class="card">
+
+            <h3>
+                Cache Status
+            </h3>
+
+            <p id="cacheStatus">
+                Ready
+            </p>
+
+        </div>
+
+
+        <div class="card">
+
+            <h3>
+                Optimization
+            </h3>
+
+            <p>
+                JOIN FETCH
+            </p>
+
+        </div>
+
+    </section>
+
+
+    <section class="panel">
+
+        <h2>
+            Query Performance
+        </h2>
+
+        <p>
+            Compare normal JPA queries,
+            JOIN FETCH and native SQL.
+        </p>
+
+        <button onclick="loadNormal()">
+            Normal Query
+        </button>
+
+        <button onclick="loadOptimized()">
+            JOIN FETCH
+        </button>
+
+        <button onclick="loadNative()">
+            Native SQL
+        </button>
+
+    </section>
+
+
+    <section class="panel">
+
+        <h2>
+            Cache Testing
+        </h2>
+
+        <input
+            type="number"
+            id="studentId"
+            placeholder="Enter Student ID"
+            min="1"
+        >
+
+        <button onclick="testCache()">
+            Get Student
+        </button>
+
+        <button onclick="clearCache()">
+            Clear Cache
+        </button>
+
+        <div id="cacheResult"></div>
+
+    </section>
+
+
+    <section class="panel">
+
+        <h2>
+            Student Data
+        </h2>
+
+        <p id="executionTime">
+            Execution time: -
+        </p>
+
+        <div class="table-container">
+
+            <table>
+
+                <thead>
+
+                    <tr>
+
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Course</th>
+                        <th>Age</th>
+                        <th>Department</th>
+
+                    </tr>
+
+                </thead>
+
+                <tbody id="studentTable">
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </section>
+
+</div>
+
+<script src="script.js"></script>
+
+</body>
+
+</html>
