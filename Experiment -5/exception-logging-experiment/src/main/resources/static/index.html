@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0">
+
+    <title>Exception Handling Dashboard</title>
+
+    <link rel="stylesheet" href="style.css">
+
+</head>
+
+<body>
+
+<div class="container">
+
+    <header>
+
+        <h1>Student API Dashboard</h1>
+
+        <p>
+            Global Exception Handling & Structured Logging
+        </p>
+
+    </header>
+
+
+    <section class="form-card">
+
+        <h2>Add Student</h2>
+
+        <form id="studentForm">
+
+            <div class="grid">
+
+                <div>
+
+                    <label>Name</label>
+
+                    <input
+                        type="text"
+                        id="name"
+                        placeholder="Enter name"
+                        required
+                    >
+
+                </div>
+
+
+                <div>
+
+                    <label>Email</label>
+
+                    <input
+                        type="email"
+                        id="email"
+                        placeholder="Enter email"
+                        required
+                    >
+
+                </div>
+
+
+                <div>
+
+                    <label>Course</label>
+
+                    <input
+                        type="text"
+                        id="course"
+                        placeholder="Enter course"
+                        required
+                    >
+
+                </div>
+
+
+                <div>
+
+                    <label>Age</label>
+
+                    <input
+                        type="number"
+                        id="age"
+                        placeholder="Enter age"
+                        required
+                    >
+
+                </div>
+
+            </div>
+
+
+            <button type="submit">
+                Add Student
+            </button>
+
+        </form>
+
+    </section>
+
+
+    <section class="search-card">
+
+        <h2>Find Student</h2>
+
+        <div class="search-box">
+
+            <input
+                type="number"
+                id="studentId"
+                placeholder="Enter Student ID"
+            >
+
+            <button id="searchBtn">
+                Search
+            </button>
+
+            <button id="allBtn">
+                Show All
+            </button>
+
+        </div>
+
+    </section>
+
+
+    <section class="table-card">
+
+        <h2>Students</h2>
+
+        <div class="table-container">
+
+            <table>
+
+                <thead>
+
+                    <tr>
+
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Course</th>
+                        <th>Age</th>
+
+                    </tr>
+
+                </thead>
+
+                <tbody id="studentTableBody">
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </section>
+
+
+    <div id="message"></div>
+
+
+    <footer>
+
+        Experiment 2.1.2 |
+        Global Exception Handling &
+        Structured Logging
+
+    </footer>
+
+</div>
+
+
+<script src="script.js"></script>
+
+</body>
+
+</html>
