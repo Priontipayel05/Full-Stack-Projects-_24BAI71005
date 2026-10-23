@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Event Reliability Dashboard</title>
+
+    <style>
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f4f7fb;
+            color: #1f2937;
+        }
+
+        header {
+            padding: 25px 6%;
+            color: white;
+            background: #172554;
+        }
+
+        header h1 { margin: 0 0 8px; }
+
+        header p {
+            margin: 0;
+            color: #cbd5e1;
+        }
+
+        main {
+            max-width: 1200px;
+            margin: 25px auto;
+            padding: 0 20px;
+        }
+
+        .panel {
+            background: white;
+            padding: 22px;
+            border-radius: 12px;
+            margin-bottom: 22px;
+            box-shadow: 0 3px 15px #0000000b;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-bottom: 22px;
+        }
+
+        .stat {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            border: 1px solid #e5e7eb;
+        }
+
+        .stat strong {
+            display: block;
+            font-size: 28px;
+            margin-top: 10px;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 15px;
+        }
+
+        label {
+            display: block;
+            font-size: 14px;
+            margin-bottom: 8px;
+            font-weight: bold;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #cbd5e1;
+            border-radius: 7px;
+            background: white;
+        }
+
+        button {
+            background: #2563eb;
+            color: white;
+            border: 0;
+            padding: 11px 16px;
+            border-radius: 7px;
+            cursor: pointer;
+            margin-top: 15px;
+        }
+
+        button:hover { background: #1d4ed8; }
+
+        .secondary { background: #475569; }
+        .warning { background: #b45309; }
+        .danger { background: #b91c1c; }
+
+        .notice {
+            margin-top: 15px;
+            padding: 12px;
+            background: #eff6ff;
+            border-radius: 7px;
+            display: none;
+        }
+
+        .table-wrap { overflow-x: auto; }
+
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin-top: 12px;
+            font-size: 13px;
+        }
+
+        th, td {
+            text-align: left;
+            padding: 12px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        th {
+            background: #f8fafc;
+            color: #475569;
+        }
+
+        .empty {
+            padding: 20px;
+            color: #64748b;
+            text-align: center;
+        }
+
+        .tag {
+            display: inline-block;
+            background: #e0e7ff;
+            color: #3730a3;
+            padding: 4px 8px;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+
+        .note {
+            color: #64748b;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+
+        @media (max-width: 750px) {
+            .stats, .form-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<header>
+    <h1>Event Reliability Dashboard</h1>
+    <p>Retries · Exponential Backoff · Dead Letters · Idempotency</p>
+</header>
+
+<main>
+
+    <div class="stats">
+        <div class="stat">
+            Total Events
+            <strong id="totalCount">0</strong>
+        </div>
+
+        <div class="stat">
+            Processing History
+            <strong id="historyCount">0</strong>
+        </div>
+
+        <div class="stat">
+            Dead-Letter Events
+            <strong id="dlqCount">0</strong>
+        </div>
+    </div>
+
+    <section class="panel">
+        <h2>Publish an Event</h2>
+
+        <form id="eventForm">
+
+            <div class="form-grid">
+                <div>
+                    <label for="eventId">Event ID</label>
+                    <input id="eventId"
+                           placeholder="evt-001"
+                           required>
+                </div>
+
+                <div>
+                    <label for="message">Message</label>
+                    <input id="message"
+                           placeholder="Order created"
+                           required>
+                </div>
+
+                <div>
+                    <label for="failureMode">Failure Scenario</label>
+                    <select id="failureMode">
+                        <option value="NONE">Normal Success</option>
+                        <option value="TRANSIENT">Temporary Failure</option>
+                        <option value="ALWAYS">Permanent Failure</option>
+                    </select>
+                </div>
+            </div>
+
+            <button type="submit">Publish Event</button>
+            <button type="button" class="secondary"
+                    onclick="runDemo('NONE')">
+                Test Success
+            </button>
+            <button type="button" class="warning"
+                    onclick="runDemo('TRANSIENT')">
+                Test Retry
+            </button>
+            <button type="button" class="danger"
+                    onclick="runDemo('ALWAYS')">
+                Test Dead Letter
+            </button>
+        </form>
+
+        <div id="notice" class="notice"></div>
+
+        <p class="note">
+            A new event is processed asynchronously. A repeated event ID
+            is skipped while processing or after successful processing.
+        </p>
+    </section>
+
+    <section class="panel">
+        <h2>Latest Event Status</h2>
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Event ID</th>
+                        <th>Status</th>
+                        <th>Details</th>
+                        <th>Time</th>
+                    </tr>
+                </thead>
+                <tbody id="statusRows"></tbody>
+            </table>
+        </div>
+    </section>
+
+    <section class="panel">
+        <h2>Processing History</h2>
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Event ID</th>
+                        <th>Status</th>
+                        <th>Details</th>
+                        <th>Time</th>
+                    </tr>
+                </thead>
+                <tbody id="historyRows"></tbody>
+            </table>
+        </div>
+    </section>
+
+    <section class="panel">
+        <h2>Dead-Letter Queue (Simulated)</h2>
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Event ID</th>
+                        <th>Message</th>
+                        <th>Failure Mode</th>
+                        <th>Reason</th>
+                        <th>Time</th>
+                    </tr>
+                </thead>
+                <tbody id="dlqRows"></tbody>
+            </table>
+        </div>
+    </section>
+
+    <p class="note">
+        Educational demo: events, history, and dead-letter records are kept
+        in application memory and reset when the application restarts.
+        No Kafka broker is connected.
+    </p>
+
+</main>
+
+<script>
+    const element = id => document.getElementById(id);
+
+    function escapeHtml(value) {
+        return String(value ?? "").replace(/[&<>"']/g, character => ({
+            "&": "&amp;",
+            "<": "&lt;",
+            ">": "&gt;",
+            '"': "&quot;",
+            "'": "&#39;"
+        }[character]));
+    }
+
+    function showNotice(message) {
+        const notice = element("notice");
+        notice.style.display = "block";
+        notice.textContent = message;
+    }
+
+    async function publishEvent(event) {
+        try {
+            const response = await fetch("/api/events", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(event)
+            });
+
+            const result = await response.json();
+
+            if (!response.ok) {
+                throw new Error(result.error || "Request failed");
+            }
+
+            showNotice(result.message + " Status: " + result.status);
+
+            await refreshDashboard();
+        } catch (error) {
+            showNotice("Error: " + error.message);
+        }
+    }
+
+    element("eventForm").addEventListener("submit", async event => {
+        event.preventDefault();
+
+        await publishEvent({
+            eventId: element("eventId").value.trim(),
+            message: element("message").value.trim(),
+            failureMode: element("failureMode").value
+        });
+    });
+
+    function runDemo(mode) {
+        const eventId = "demo-" + mode.toLowerCase()
+            + "-" + Date.now();
+
+        element("eventId").value = eventId;
+        element("message").value =
+            "Demonstration of " + mode + " processing";
+        element("failureMode").value = mode;
+
+        publishEvent({
+            eventId: eventId,
+            message: element("message").value,
+            failureMode: mode
+        });
+    }
+
+    function renderRows(tableId, rows, columns) {
+        const target = element(tableId);
+
+        if (!rows || rows.length === 0) {
+            target.innerHTML =
+                '<tr><td class="empty" colspan="' +
+                columns.length + '">No records yet</td></tr>';
+            return;
+        }
+
+        target.innerHTML = rows.map(row =>
+            "<tr>" + columns.map(column =>
+                "<td>" + escapeHtml(row[column]) + "</td>"
+            ).join("") + "</tr>"
+        ).join("");
+    }
+
+    async function getJson(url) {
+        const response = await fetch(url);
+
+        if (!response.ok) {
+            throw new Error("Could not load " + url);
+        }
+
+        return response.json();
+    }
+
+    async function refreshDashboard() {
+        try {
+            const [statuses, history, dlq] = await Promise.all([
+                getJson("/api/events/status"),
+                getJson("/api/events/history"),
+                getJson("/api/events/dlq")
+            ]);
+
+            element("totalCount").textContent = statuses.length;
+            element("historyCount").textContent = history.length;
+            element("dlqCount").textContent = dlq.length;
+
+            renderRows("statusRows", statuses, [
+                "eventId", "status", "detail", "time"
+            ]);
+
+            renderRows("historyRows", [...history].reverse(), [
+                "eventId", "status", "detail", "time"
+            ]);
+
+            renderRows("dlqRows", [...dlq].reverse(), [
+                "eventId", "message", "failureMode", "reason", "time"
+            ]);
+        } catch (error) {
+            showNotice(
+                "Could not refresh dashboard. Is Spring Boot running?"
+            );
+        }
+    }
+
+    refreshDashboard();
+    setInterval(refreshDashboard, 2000);
+</script>
+
+</body>
+</html>
