@@ -1,0 +1,413 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Event Reliability System</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: #f3f6fc;
+            color: #172033;
+            min-height: 100vh;
+        }
+
+        header {
+            background: #14213d;
+            color: white;
+            padding: 25px 6%;
+        }
+
+        header h1 {
+            font-size: 28px;
+            margin-bottom: 8px;
+        }
+
+        header p {
+            color: #cbd5e1;
+        }
+
+        .student {
+            margin-top: 12px;
+            font-size: 13px;
+            color: #bfdbfe;
+        }
+
+        main {
+            max-width: 1150px;
+            margin: 30px auto;
+            padding: 0 20px;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 18px;
+            margin-bottom: 25px;
+        }
+
+        .card, .panel {
+            background: white;
+            border-radius: 14px;
+            padding: 22px;
+            box-shadow: 0 4px 15px rgba(20, 33, 61, 0.06);
+        }
+
+        .stat-label {
+            color: #64748b;
+            font-size: 14px;
+        }
+
+        .stat-value {
+            font-size: 30px;
+            font-weight: bold;
+            margin-top: 12px;
+        }
+
+        .layout {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 22px;
+        }
+
+        h2 {
+            font-size: 19px;
+            margin-bottom: 18px;
+        }
+
+        label {
+            display: block;
+            font-size: 14px;
+            font-weight: bold;
+            margin: 14px 0 7px;
+        }
+
+        input, textarea, select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            font: inherit;
+            background: white;
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 85px;
+        }
+
+        button {
+            border: none;
+            border-radius: 8px;
+            padding: 12px 16px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 15px;
+        }
+
+        .primary {
+            width: 100%;
+            background: #2563eb;
+            color: white;
+        }
+
+        .secondary {
+            background: #e2e8f0;
+            color: #172033;
+        }
+
+        button:hover {
+            opacity: 0.88;
+        }
+
+        .result {
+            margin-top: 18px;
+            padding: 14px;
+            border-radius: 8px;
+            background: #eff6ff;
+            white-space: pre-wrap;
+            overflow-wrap: anywhere;
+            font-size: 13px;
+            line-height: 1.7;
+        }
+
+        .status {
+            display: inline-block;
+            padding: 5px 9px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+            background: #e2e8f0;
+        }
+
+        .success {
+            color: #166534;
+            background: #dcfce7;
+        }
+
+        .failure {
+            color: #991b1b;
+            background: #fee2e2;
+        }
+
+        .dlq-panel {
+            margin-top: 22px;
+        }
+
+        .dlq-item {
+            border: 1px solid #e2e8f0;
+            padding: 14px;
+            margin-top: 10px;
+            border-radius: 8px;
+            overflow-wrap: anywhere;
+        }
+
+        .muted {
+            color: #64748b;
+            font-size: 13px;
+        }
+
+        footer {
+            text-align: center;
+            padding: 25px;
+            color: #64748b;
+            font-size: 13px;
+        }
+
+        @media (max-width: 750px) {
+            .stats, .layout {
+                grid-template-columns: 1fr;
+            }
+
+            header h1 {
+                font-size: 23px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+<header>
+    <h1>Event Reliability System</h1>
+    <p>Reliable event processing with retries, exponential backoff,
+       idempotency, and a Dead Letter Queue.</p>
+    <div class="student" id="studentInfo">Loading student information...</div>
+</header>
+
+<main>
+    <section class="stats">
+        <div class="card">
+            <div class="stat-label">Unique Event IDs Seen</div>
+            <div class="stat-value" id="processedCount">0</div>
+        </div>
+
+        <div class="card">
+            <div class="stat-label">Events in Dead Letter Queue</div>
+            <div class="stat-value" id="dlqCount">0</div>
+        </div>
+
+        <div class="card">
+            <div class="stat-label">Processing Strategy</div>
+            <div class="stat-value" style="font-size:21px">Retry + Backoff</div>
+        </div>
+    </section>
+
+    <section class="layout">
+        <div class="panel">
+            <h2>Submit an Event</h2>
+
+            <form id="eventForm">
+                <label for="eventId">Event ID</label>
+                <input id="eventId" required
+                       placeholder="Example: EVT-001">
+
+                <label for="message">Event Message</label>
+                <textarea id="message" required
+                          placeholder="Enter the event details"></textarea>
+
+                <label for="failureMode">Failure Simulation</label>
+                <select id="failureMode">
+                    <option value="NONE">No Failure — Success</option>
+                    <option value="FAIL_ONCE">Fail Once — Retry Success</option>
+                    <option value="ALWAYS_FAIL">Always Fail — Send to DLQ</option>
+                </select>
+
+                <button class="primary" type="submit">
+                    Process Event
+                </button>
+            </form>
+
+            <div id="result" class="result" aria-live="polite">
+                Your processing result will appear here.
+            </div>
+        </div>
+
+        <div class="panel">
+            <h2>Reliability Features</h2>
+
+            <div class="dlq-item">
+                <strong>1. Retry Mechanism</strong>
+                <p class="muted">Failed events are retried up to three attempts.</p>
+            </div>
+
+            <div class="dlq-item">
+                <strong>2. Exponential Backoff</strong>
+                <p class="muted">Retry delays increase from 500 ms to 1000 ms.</p>
+            </div>
+
+            <div class="dlq-item">
+                <strong>3. Idempotency</strong>
+                <p class="muted">Repeated event IDs are rejected to prevent reprocessing.</p>
+            </div>
+
+            <div class="dlq-item">
+                <strong>4. Dead Letter Queue</strong>
+                <p class="muted">Events that exhaust their retries are retained for inspection.</p>
+            </div>
+
+            <button class="secondary" type="button" onclick="refreshData()">
+                Refresh Statistics and DLQ
+            </button>
+        </div>
+    </section>
+
+    <section class="panel dlq-panel">
+        <h2>Dead Letter Queue (DLQ)</h2>
+        <p class="muted">Events that failed all processing attempts.</p>
+        <div id="dlqList">Loading DLQ...</div>
+    </section>
+</main>
+
+<footer>
+    Experiment 8 | Event Reliability System | Spring Boot
+</footer>
+
+<script>
+    const resultBox = document.getElementById("result");
+    const form = document.getElementById("eventForm");
+
+    async function loadDemoInfo() {
+        try {
+            const response = await fetch("/api/demo");
+
+            if (!response.ok) {
+                throw new Error("Unable to load demo information");
+            }
+
+            const data = await response.json();
+
+            document.getElementById("studentInfo").textContent =
+                `Student: ${data.studentName} | UID: ${data.uid} | ${data.project}`;
+        } catch (error) {
+            document.getElementById("studentInfo").textContent =
+                "Event Reliability System | Student information unavailable";
+        }
+    }
+
+    async function refreshData() {
+        try {
+            const [statsResponse, dlqResponse] = await Promise.all([
+                fetch("/api/events/stats"),
+                fetch("/api/events/dlq")
+            ]);
+
+            if (!statsResponse.ok || !dlqResponse.ok) {
+                throw new Error("Unable to load statistics");
+            }
+
+            const stats = await statsResponse.json();
+            const dlq = await dlqResponse.json();
+
+            document.getElementById("processedCount").textContent =
+                stats.processedEvents ?? 0;
+
+            document.getElementById("dlqCount").textContent =
+                stats.deadLetterQueueSize ?? 0;
+
+            const dlqList = document.getElementById("dlqList");
+            dlqList.replaceChildren();
+
+            if (dlq.length === 0) {
+                const empty = document.createElement("p");
+                empty.className = "muted";
+                empty.textContent = "No failed events in the queue.";
+                dlqList.appendChild(empty);
+                return;
+            }
+
+            dlq.forEach(event => {
+                const item = document.createElement("div");
+                item.className = "dlq-item";
+
+                const title = document.createElement("strong");
+                title.textContent = `Event ID: ${event.eventId}`;
+
+                const message = document.createElement("p");
+                message.textContent = `Message: ${event.message ?? ""}`;
+
+                const attempts = document.createElement("p");
+                attempts.textContent = `Attempts: ${event.attempts}`;
+
+                item.append(title, message, attempts);
+                dlqList.appendChild(item);
+            });
+        } catch (error) {
+            document.getElementById("dlqList").textContent =
+                "Unable to load data. Check that the backend is running.";
+        }
+    }
+
+    form.addEventListener("submit", async function (event) {
+        event.preventDefault();
+
+        const payload = {
+            eventId: document.getElementById("eventId").value.trim(),
+            message: document.getElementById("message").value.trim(),
+            failureMode: document.getElementById("failureMode").value
+        };
+
+        if (!payload.eventId || !payload.message) {
+            resultBox.textContent = "Please enter both Event ID and Event Message.";
+            return;
+        }
+
+        resultBox.textContent = "Processing event...";
+
+        try {
+            const response = await fetch("/api/events", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(payload)
+            });
+
+            const data = await response.json();
+
+            resultBox.textContent = JSON.stringify(data, null, 2);
+
+            resultBox.className = "result " +
+                (data.status === "SUCCESS" ? "success" :
+                 data.status === "DLQ" ? "failure" : "");
+
+            await refreshData();
+        } catch (error) {
+            resultBox.className = "result failure";
+            resultBox.textContent =
+                "Request failed. Make sure the Spring Boot backend is running.";
+        }
+    });
+
+    loadDemoInfo();
+    refreshData();
+</script>
+</body>
+</html>
